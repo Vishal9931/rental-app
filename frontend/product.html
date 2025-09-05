@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rental App - Product</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="navbar">
+  <h1>Rental App</h1>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="orders.html">My Orders</a></li>
+    <li><a href="login.html">Login</a></li>
+  </ul>
+</div>
+
+    <h1>Product Details</h1>
+    <div id="product"></div>
+
+    <h2>Rent this product</h2>
+    <form id="rentForm">
+        <label>Start Date: <input type="date" id="start" required></label><br>
+        <label>End Date: <input type="date" id="end" required></label><br>
+        <label>Quantity: <input type="number" id="qty" value="1" min="1"></label><br>
+        <button type="submit">Create Quote</button>
+    </form>
+
+    <div class="footer">
+  <p>© 2025 Rental App. All rights reserved.</p>
+</div>
+
+
+    <script>
+        // get product id from URL
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+
+        fetch("http://localhost:4000/products")
+            .then(res => res.json())
+            .then(products => {
+                const product = products.find(p => p.id == id);
+                if (product) {
+                    document.getElementById("product").innerHTML = `
+            <h2>${product.name}</h2>
+            <p>${product.description || "No description"}</p>
+            <p>Unit Price: ₹${product.basePriceDay || 0} per day</p>
+          `;
+                }
+            });
+
+        document.getElementById("rentForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const start = document.getElementById("start").value;
+            const end = document.getElementById("end").value;
+            const qty = document.getElementById("qty").value;
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                alert("You must log in first");
+                window.location.href = "login.html";
+                return;
+            }
+
+            const res = await fetch("http://localhost:4000/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({ productId: parseInt(id), start, end, qty })
+            });
+
+            const data = await res.json();
+            alert("Order created: " + JSON.stringify(data));
+        });
+
+    </script>
+</body>
+
+</html>

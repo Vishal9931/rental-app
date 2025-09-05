@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rental App - Products</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="navbar">
+  <h1>Rental App</h1>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="orders.html">My Orders</a></li>
+    <li><a href="login.html">Login</a></li>
+  </ul>
+</div>
+
+  <h1>Available Products</h1>
+  <div id="products"></div>
+
+  <div class="footer">
+  <p>© 2025 Rental App. All rights reserved.</p>
+</div>
+
+  <script>
+    // fetch products from backend
+    fetch("http://localhost:4000/products")
+      .then(res => res.json())
+      .then(products => {
+        const container = document.getElementById("products");
+        container.innerHTML = products.map(p => `
+          <div class="product">
+            <h2>${p.name}</h2>
+            <p>${p.description || "No description"}</p>
+            <p>Unit Price: ₹${p.basePriceDay || 0} per day</p>
+            <button onclick="viewProduct(${p.id})">View</button>
+          </div>
+        `).join("");
+      });
+
+    function viewProduct(id) {
+      // go to product details page with productId in URL
+      window.location.href = "product.html?id=" + id;
+    }
+  </script>
+</body>
+</html>

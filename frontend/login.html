@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rental App - Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="navbar">
+  <h1>Rental App</h1>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="orders.html">My Orders</a></li>
+    <li><a href="login.html">Login</a></li>
+  </ul>
+</div>
+
+  <h1>Login</h1>
+  <form id="loginForm">
+    <label>Email: <input type="email" id="email" required></label><br>
+    <label>Password: <input type="password" id="password" required></label><br>
+    <button type="submit">Login</button>
+  </form>
+
+  <div class="footer">
+  <p>© 2025 Rental App. All rights reserved.</p>
+</div>
+
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const res = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        alert("Login successful!");
+        window.location.href = "index.html";
+      } else {
+        alert("Login failed: " + data.error);
+      }
+    });
+  </script>
+</body>
+</html>
