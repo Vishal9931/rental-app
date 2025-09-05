@@ -23,8 +23,10 @@
 </div>
 
   <script>
+      const API = "https://rental-app-4igt.onrender.com"; // your Render URL
     // fetch products from backend
-    fetch("http://localhost:4000/products")
+    fetch(API + "/products")
+
       .then(res => res.json())
       .then(products => {
         const container = document.getElementById("products");

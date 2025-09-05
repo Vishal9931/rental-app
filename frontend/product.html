@@ -35,11 +35,14 @@
 
 
     <script>
+        
+      const API = "https://rental-app-4igt.onrender.com"; // your Render URL
         // get product id from URL
         const params = new URLSearchParams(window.location.search);
         const id = params.get("id");
 
-        fetch("http://localhost:4000/products")
+        fetch(API + "/products")
+
             .then(res => res.json())
             .then(products => {
                 const product = products.find(p => p.id == id);
