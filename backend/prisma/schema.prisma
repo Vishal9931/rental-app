@@ -1,15 +1,117 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum Unit {
+  HOUR
+  DAY
+  WEEK
+}
+
+enum OrderStatus {
+  QUOTE
+  CONFIRMED
+  PICKED_UP
+  RETURNED
+  LATE
+  CANCELLED
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CUSTOMER)
+  orders    Order[]
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id            Int      @id @default(autoincrement())
+  name          String
+  description   String?
+  isRentable    Boolean  @default(true)
+  unit          Unit
+  basePriceHour Float?
+  basePriceDay  Float?
+  basePriceWeek Float?
+  quantity      Int
+  deposit       Float?   @default(0)
+  images        Json?
+  createdAt     DateTime @default(now())
+  orders        Order[]
+  availability  AvailabilityBlock[]
+}
+
+model AvailabilityBlock {
+  id        Int      @id @default(autoincrement())
+  product   Product  @relation(fields:[productId], references:[id])
+  productId Int
+  start     DateTime
+  end       DateTime
+  reason    String?
+}
+
+model PricelistRule {
+  id        Int      @id @default(autoincrement())
+  name      String
+  kind      String   // "duration" or "season"
+  percent   Float?
+  minDays   Int?
+  validFrom DateTime?
+  validTo   DateTime?
+}
+
+model Order {
+  id         Int        @id @default(autoincrement())
+  user       User       @relation(fields:[userId], references:[id])
+  userId     Int
+  product    Product    @relation(fields:[productId], references:[id])
+  productId  Int
+  start      DateTime
+  end        DateTime
+  unit       Unit
+  qty        Int
+  status     OrderStatus @default(QUOTE)
+  priceBase  Float
+  discount   Float
+  total      Float
+  depositPaid Boolean  @default(false)
+  pickUpAt   DateTime?
+  returnBy   DateTime?
+  returnedAt DateTime?
+  lateFee    Float?
+  createdAt  DateTime  @default(now())
+  stockMoves StockMove[]
+  payments   Payment[]
+}
+
+model StockMove {
+  id      Int    @id @default(autoincrement())
+  order   Order  @relation(fields:[orderId], references:[id])
+  orderId Int
+  kind    String // "RESERVE","PICKUP","RETURN"
+  at      DateTime @default(now())
+}
+
+model Payment {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields:[orderId], references:[id])
+  orderId   Int
+  amount    Float
+  method    String
+  status    String
+  createdAt DateTime @default(now())
 }
