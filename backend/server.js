@@ -7,7 +7,7 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 const app = express();
-const PORT = 4000; // our backend will run at http://localhost:4000
+const PORT = process.env.PORT || 4000; // our backend will run at http://localhost:4000
 const JWT_SECRET = "supersecret"; // change this to anything random
 
 // Middlewares
